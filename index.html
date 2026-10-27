@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>c1ph3rth3ft</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo">&gt;_ c1ph3rth3ft</div>
+    <div id="hud" class="hud hidden">
+      <span id="hud-char"></span>
+      <span id="hud-level"></span>
+      <span id="hud-lives" class="hearts"></span>
+    </div>
+  </header>
+
+  <main>
+    <!-- BUAT KARAKTER -->
+    <section id="screen-create" class="screen">
+      <h1>Buat Karakter Pencuri</h1>
+      <p class="muted">Kamu pencuri sekaligus ahli cyber security. Lima lokasi menunggumu. Di setiap lokasi, kamu harus mengenkripsi sebuah pesan sampai menjadi teks sandi yang benar. Teks itu menjadi flag pembuka pintunya.</p>
+
+      <label for="char-name">Nama samaran</label>
+      <input id="char-name" type="text" maxlength="20" placeholder="contoh: Ghost_404" autocomplete="off">
+
+      <label>Latar belakang pencuri</label>
+      <div id="bg-list" class="card-grid"></div>
+
+      <label for="char-note">Catatan tambahan (opsional)</label>
+      <textarea id="char-note" rows="2" maxlength="140" placeholder="Kenapa kamu memilih jalan ini?"></textarea>
+
+      <div class="panel example">
+        <b>Contoh alur enkripsi</b><br>
+        <span class="step-tag">1</span>Plaintext <code>hai</code> diubah ke angka dengan tabel kuantifikasi: h = -8, a = -1, i = -9.<br>
+        <span class="step-tag">2</span>Terapkan method <code>f(x) = 3x + k</code> dengan kunci k = 16, -2, 18 (berurutan):<br>
+        &nbsp;&nbsp;&nbsp;3(-8)+16 = -8, &nbsp;3(-1)+(-2) = -5, &nbsp;3(-9)+18 = -9.<br>
+        <span class="step-tag">3</span>Ubah angka hasilnya kembali ke teks dengan tabel dekuantifikasi: -8 = h, -5 = e, -9 = i.<br>
+        Flag: <code>CYMT{hei}</code> (hasilnya kata yang bermakna)
+      </div>
+
+      <button id="btn-start" class="btn primary">Mulai Misi</button>
+      <p id="create-error" class="error"></p>
+    </section>
+
+    <!-- BRIEFING LEVEL -->
+    <section id="screen-brief" class="screen hidden">
+      <h2 id="brief-title"></h2>
+      <p id="brief-story"></p>
+      <div class="panel">
+        <div id="brief-stats"></div>
+      </div>
+      <button id="btn-go" class="btn primary">Mulai Aksi</button>
+    </section>
+
+    <!-- PUZZLE -->
+    <section id="screen-play" class="screen hidden">
+      <h2 id="play-title"></h2>
+
+      <div class="panel">
+        <div class="label">Pesan yang harus dienkripsi (plaintext)</div>
+        <div id="plain" class="plain"></div>
+      </div>
+
+      <div class="label"><span class="step-tag">1</span>Tabel kuantifikasi (huruf ke angka)</div>
+      <div class="panel">
+        <div id="qtable"></div>
+      </div>
+
+      <div class="label"><span class="step-tag">2</span>Method enkripsi (terapkan berurutan dari #1)</div>
+      <div id="methods" class="methods"></div>
+
+      <div class="label"><span class="step-tag">3</span>Tabel dekuantifikasi (angka ke huruf)</div>
+      <div class="panel">
+        <div id="dtable"></div>
+      </div>
+
+      <div class="panel">
+        <div id="work-label" class="label">Meja kerja (opsional, untuk membantu hitungan)</div>
+        <textarea id="work" rows="3" spellcheck="false" placeholder="angka dipisah spasi"></textarea>
+        <div class="row">
+          <button id="btn-convert" class="btn small">1. Konversi plaintext ke angka</button>
+          <button id="btn-back" class="btn small">3. Konversi angka ke teks</button>
+          <button id="btn-clear" class="btn small">Kosongkan</button>
+        </div>
+        <div id="work-preview-label" class="label">Hasil tombol 3: angka di meja kerja menjadi teks (_ = spasi):</div>
+        <div id="work-preview" class="preview"></div>
+        <p id="work-error" class="error"></p>
+      </div>
+
+      <div id="calc-panel" class="panel hidden">
+        <div class="label">Kalkulator (alat bantu hitung)</div>
+        <input id="calc-input" type="text" autocomplete="off" spellcheck="false" placeholder="contoh: 3*(-8)+16 lalu Enter. Boleh pakai ans untuk hasil sebelumnya">
+        <div class="row">
+          <button id="btn-calc" class="btn small">Hitung</button>
+          <button id="btn-calc-clear" class="btn small">Hapus riwayat</button>
+        </div>
+        <div id="calc-out" class="preview"></div>
+        <p class="muted" style="font-size:13px;margin:8px 0 0">Operator: + − * / dan kurung. Baris kedua tiap hasil menunjukkan nilainya setelah ditambah/dikurangi 53 (rentang -26 sampai 26). Kalkulator hanya menghitung, kamu yang menentukan angka dan urutan methodnya.</p>
+      </div>
+
+      <div class="panel">
+        <label for="answer">Flag: teks hasil enkripsimu</label>
+        <input id="answer" type="text" autocomplete="off" placeholder="contoh: CYMT{hei}">
+        <p class="muted" style="font-size:13px;margin:8px 0 0">Wajib ditulis dalam format CYMT{teks}. Huruf besar dan kecil berpengaruh. Spasi ditulis sebagai garis bawah (_) atau spasi biasa.</p>
+        <button id="btn-answer" class="btn primary">Kirim Flag</button>
+        <p id="feedback" class="feedback"></p>
+      </div>
+    </section>
+
+    <!-- LEVEL SELESAI -->
+    <section id="screen-win" class="screen hidden">
+      <h2>Flag benar, pintu terbuka!</h2>
+      <p id="win-text"></p>
+      <div id="win-flag" class="flag"></div>
+      <button id="btn-next" class="btn primary">Lanjut ke lokasi berikutnya</button>
+    </section>
+
+    <!-- PENJARA -->
+    <section id="screen-jail" class="screen hidden">
+      <h2 class="danger">TERTANGKAP!</h2>
+      <p id="jail-text"></p>
+      <svg class="jail-scene" viewBox="0 0 460 240" aria-hidden="true">
+        <defs>
+          <pattern id="jbrick" width="40" height="20" patternUnits="userSpaceOnUse">
+            <rect width="40" height="20" fill="#0d141c"/>
+            <path d="M0 0H40M0 10H40M20 0V10M0 10V20M40 10V20" stroke="#17222f" stroke-width="1" fill="none"/>
+          </pattern>
+          <pattern id="jbars" width="22" height="196" patternUnits="userSpaceOnUse">
+            <rect x="9" width="4" height="196" fill="#4a5a70"/>
+            <rect x="9" width="1.5" height="196" fill="#7a8ea8"/>
+          </pattern>
+          <radialGradient id="jglow" cx="50%" cy="50%" r="50%">
+            <stop offset="0" stop-color="#ffe9a8" stop-opacity=".5"/>
+            <stop offset="1" stop-color="#ffe9a8" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="460" height="240" fill="#070b10"/>
+
+        <!-- dinding dan lantai sel -->
+        <rect x="70" y="20" width="380" height="172" fill="url(#jbrick)"/>
+        <rect x="70" y="192" width="380" height="28" fill="#0a0f15"/>
+        <path d="M70 192H450" stroke="#1c2a3a" stroke-width="2"/>
+
+        <!-- jendela dan cahaya bulan -->
+        <polygon points="332,75 376,75 410,192 300,192" fill="rgba(160,200,255,.07)"/>
+        <rect x="332" y="45" width="44" height="30" fill="#0a1a2e" stroke="#2a3646" stroke-width="3"/>
+        <path d="M343 45V75M354 45V75M365 45V75" stroke="#2a3646" stroke-width="3"/>
+
+        <!-- ranjang -->
+        <rect x="86" y="152" width="80" height="7" fill="#2a3646"/>
+        <rect x="90" y="159" width="5" height="33" fill="#2a3646"/>
+        <rect x="157" y="159" width="5" height="33" fill="#2a3646"/>
+        <rect x="86" y="145" width="80" height="7" fill="#1a2533"/>
+        <rect x="116" y="145" width="50" height="7" fill="#243247"/>
+        <rect x="88" y="141" width="22" height="5" rx="2" fill="#3a4a5e"/>
+
+        <!-- bohlam -->
+        <path d="M215 20V46" stroke="#2a3646" stroke-width="2"/>
+        <circle class="j-glow" cx="215" cy="52" r="48" fill="url(#jglow)"/>
+        <circle class="j-bulb" cx="215" cy="52" r="5" fill="#ffe9a8"/>
+
+        <!-- goresan hari di dinding -->
+        <g class="j-tally" stroke="#7f93a8" stroke-width="2" stroke-linecap="round">
+          <line x1="262" y1="104" x2="262" y2="124"/>
+          <line x1="270" y1="104" x2="270" y2="124"/>
+          <line x1="278" y1="104" x2="278" y2="124"/>
+          <line x1="286" y1="104" x2="286" y2="124"/>
+          <line x1="256" y1="122" x2="292" y2="106"/>
+        </g>
+
+        <!-- polisi yang melempar -->
+        <g class="j-cop">
+          <rect x="25" y="152" width="9" height="40" rx="3" fill="#0a1a33"/>
+          <rect x="38" y="152" width="9" height="40" rx="3" fill="#0a1a33"/>
+          <path d="M20 110 Q36 101 52 110 L55 156 H17 Z" fill="#0f2a55"/>
+          <circle cx="46" cy="122" r="3.5" fill="#ffd54a"/>
+          <circle cx="36" cy="95" r="11" fill="#0a1a33"/>
+          <path d="M23 89H49L46 80H26Z" fill="#0f2a55"/>
+          <rect x="22" y="88" width="28" height="4" fill="#0a1a33"/>
+          <path d="M50 114L72 101" stroke="#0f2a55" stroke-width="9" stroke-linecap="round"/>
+          <circle cx="75" cy="100" r="5" fill="#0a1a33"/>
+          <circle cx="22" cy="140" r="3.5" fill="none" stroke="#ffd54a" stroke-width="1.5"/>
+        </g>
+
+        <!-- pencuri berseragam tahanan: dilempar, lalu duduk di pojok kanan -->
+        <g transform="translate(408,192) scale(1.3)">
+          <g class="j-thief"><g class="j-breathe">
+            <rect x="-17" y="-36" width="34" height="36" rx="9" fill="#e07b1a"/>
+            <circle cx="14" cy="-18" r="9" fill="#e07b1a"/>
+            <path d="M-17 -26H17M-17 -14H17" stroke="#8a4a0c" stroke-width="3"/>
+            <circle cx="-3" cy="-44" r="9" fill="#d8a77a"/>
+            <path d="M-12 -46 A9 9 0 0 1 6 -46 Z" fill="#1a1208"/>
+            <path d="M-14 -30 Q16 -34 16 -10" stroke="#c96a10" stroke-width="7" fill="none" stroke-linecap="round"/>
+            <rect x="6" y="-8" width="18" height="8" rx="4" fill="#1a1208"/>
+            <text x="-12" y="-17" font-size="7" font-family="monospace" fill="#1a1208">404</text>
+          </g></g>
+        </g>
+
+        <!-- pintu sel menutup -->
+        <g class="j-door">
+          <rect x="74" y="22" width="372" height="196" fill="url(#jbars)"/>
+          <rect x="74" y="64" width="372" height="5" fill="#3a4a5e"/>
+          <rect x="74" y="112" width="372" height="5" fill="#3a4a5e"/>
+          <rect x="426" y="80" width="14" height="20" rx="3" fill="#ffd54a"/>
+          <path d="M429 80V74a4 4 0 0 1 8 0V80" stroke="#ffd54a" stroke-width="2" fill="none"/>
+        </g>
+
+        <!-- rangka sel -->
+        <rect x="66" y="14" width="388" height="8" fill="#3a4a5e"/>
+        <rect x="66" y="218" width="388" height="8" fill="#3a4a5e"/>
+        <rect x="446" y="14" width="8" height="212" fill="#3a4a5e"/>
+        <rect class="j-flash" width="460" height="240" fill="#fff"/>
+      </svg>
+      <p class="muted jail-cap">Sel nomor 404. Satu goresan di dinding untuk satu hari yang hilang.</p>
+      <button id="btn-newchar" class="btn primary">Buat karakter baru</button>
+    </section>
+
+    <!-- TAMAT -->
+    <section id="screen-end" class="screen hidden">
+      <h2>Misi Selesai</h2>
+      <p id="end-text"></p>
+      <div id="end-flag" class="flag"></div>
+      <button id="btn-again" class="btn primary">Main lagi dengan karakter baru</button>
+    </section>
+  </main>
+
+  <div id="cyber" class="cyber-overlay" aria-hidden="true">
+    <div id="cyber-rain" class="cyber-rain"></div>
+    <div id="cyber-pops"></div>
+    <div id="cyber-banner" class="cyber-banner"></div>
+    <div id="cyber-bsod" class="cv cv-bsod"></div>
+    <div id="cyber-term" class="cv cv-term"></div>
+    <div id="cyber-lock" class="cv cv-lock"></div>
+  </div>
+
+  <!-- ADEGAN MALING DITANGKAP POLISI -->
+  <div id="arrest" class="arrest-overlay" aria-hidden="true">
+    <div class="arrest-lights"></div>
+    <div class="arrest-spot"></div>
+    <div class="arrest-city"></div>
+    <div id="arrest-alert" class="arrest-alert">CRITICAL BREACH<small>INTRUSI TERDETEKSI &nbsp;|&nbsp; NYAWA HABIS</small></div>
+
+    <svg class="arrest-scene" viewBox="0 0 400 220" aria-hidden="true">
+      <!-- pencuri -->
+      <g class="a-thief">
+        <circle cx="200" cy="78" r="13" fill="#05080c"/>
+        <rect x="186" y="73" width="28" height="7" rx="3" fill="#ff4d5e"/>
+        <path d="M184 96 Q200 88 216 96 L220 150 H180 Z" fill="#05080c"/>
+        <path class="a-arm-l" d="M184 100 L166 62" stroke="#05080c" stroke-width="9" stroke-linecap="round"/>
+        <path class="a-arm-r" d="M216 100 L234 62" stroke="#05080c" stroke-width="9" stroke-linecap="round"/>
+        <rect x="186" y="148" width="11" height="48" rx="4" fill="#05080c"/>
+        <rect x="203" y="148" width="11" height="48" rx="4" fill="#05080c"/>
+        <rect class="a-bag" x="212" y="120" width="26" height="22" rx="4" fill="#1a2533" stroke="#39ff88" stroke-width="1.5"/>
+        <text class="a-bag-t" x="225" y="135" text-anchor="middle" font-size="9" fill="#39ff88" font-family="monospace">$</text>
+      </g>
+      <!-- polisi kiri -->
+      <g class="a-cop a-cop-l">
+        <circle cx="90" cy="82" r="12" fill="#0a1a33"/>
+        <path d="M76 74 H104 L100 66 H80 Z" fill="#0f2a55"/>
+        <path d="M74 98 Q90 90 106 98 L110 152 H70 Z" fill="#0f2a55"/>
+        <circle cx="98" cy="110" r="3.5" fill="#ffd54a"/>
+        <path d="M108 104 L148 112" stroke="#0f2a55" stroke-width="9" stroke-linecap="round"/>
+        <rect x="146" y="106" width="16" height="9" rx="2" fill="#c9d4e0"/>
+        <rect x="76" y="150" width="11" height="46" rx="4" fill="#0a1a33"/>
+        <rect x="93" y="150" width="11" height="46" rx="4" fill="#0a1a33"/>
+      </g>
+      <!-- polisi kanan -->
+      <g class="a-cop a-cop-r">
+        <circle cx="310" cy="82" r="12" fill="#0a1a33"/>
+        <path d="M296 74 H324 L320 66 H300 Z" fill="#0f2a55"/>
+        <path d="M294 98 Q310 90 326 98 L330 152 H290 Z" fill="#0f2a55"/>
+        <circle cx="302" cy="110" r="3.5" fill="#ffd54a"/>
+        <path d="M292 104 L252 112" stroke="#0f2a55" stroke-width="9" stroke-linecap="round"/>
+        <rect x="238" y="106" width="16" height="9" rx="2" fill="#c9d4e0"/>
+        <rect x="296" y="150" width="11" height="46" rx="4" fill="#0a1a33"/>
+        <rect x="313" y="150" width="11" height="46" rx="4" fill="#0a1a33"/>
+      </g>
+      <!-- borgol -->
+      <g class="a-cuffs">
+        <circle cx="166" cy="62" r="6" fill="none" stroke="#c9d4e0" stroke-width="2.5"/>
+        <circle cx="234" cy="62" r="6" fill="none" stroke="#c9d4e0" stroke-width="2.5"/>
+      </g>
+      <!-- tanah -->
+      <rect x="0" y="196" width="400" height="24" fill="#05080c"/>
+    </svg>
+
+    <div id="arrest-text" class="arrest-text"></div>
+    <div class="arrest-hint">klik untuk lanjut</div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
