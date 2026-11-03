@@ -540,3 +540,44 @@ body.glitch-3 main    { animation-duration: 1s; }
   .a-bag, .a-bag-t { animation: none; }
   .arrest-alert { opacity: 0; }
 }
+/* ---- dunia 2D (canvas top-down) ---- */
+.world-wrap { max-width: 640px; margin: 0 auto; }
+#world-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #05080c;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  image-rendering: pixelated;
+  box-shadow: 0 0 0 1px #0b1a12, 0 0 28px rgba(57, 255, 136, .12);
+  touch-action: none;
+}
+.world-help { font-size: 13px; color: var(--muted); text-align: center; margin: 10px 0 0; }
+.world-help b { color: var(--accent); font-family: var(--mono); font-weight: normal; }
+.world-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.dpad {
+  display: none;
+  grid-template-columns: repeat(3, 60px);
+  grid-template-rows: repeat(2, 60px);
+  gap: 6px;
+  justify-content: center;
+  margin: 14px auto 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.dp-btn {
+  background: #1a2533;
+  color: var(--accent);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: 20px;
+  touch-action: none;
+  cursor: pointer;
+}
+.dp-btn:active { background: #243247; border-color: var(--accent); }
+.dp-up { grid-column: 2; grid-row: 1; }
+.dp-left { grid-column: 1; grid-row: 2; }
+.dp-down { grid-column: 2; grid-row: 2; }
+.dp-right { grid-column: 3; grid-row: 2; }
+@media (pointer: coarse) { .dpad { display: grid; } }

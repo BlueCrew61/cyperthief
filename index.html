@@ -51,11 +51,31 @@
       <div class="panel">
         <div id="brief-stats"></div>
       </div>
-      <button id="btn-go" class="btn primary">Mulai Aksi</button>
+      <button id="btn-go" class="btn primary">Masuk ke Lokasi</button>
+    </section>
+
+    <!-- DUNIA 2D -->
+    <section id="screen-world" class="screen hidden">
+      <h2 id="world-title"></h2>
+      <p id="world-goal" class="muted"></p>
+      <div class="world-wrap">
+        <canvas id="world-canvas" width="640" height="384" aria-label="Peta 2D lokasi pencurian"></canvas>
+      </div>
+      <p class="world-help">Gerak: <b>W A S D</b> atau tombol panah &nbsp;|&nbsp; Interaksi: <b>E</b>, Spasi, atau tombol di bawah</p>
+      <div class="world-actions">
+        <button id="btn-interact" class="btn primary">Retas terminal (E)</button>
+      </div>
+      <div class="dpad" aria-label="Kontrol sentuh">
+        <button class="dp-btn dp-up" data-dir="up" aria-label="Atas">&#9650;</button>
+        <button class="dp-btn dp-left" data-dir="left" aria-label="Kiri">&#9664;</button>
+        <button class="dp-btn dp-down" data-dir="down" aria-label="Bawah">&#9660;</button>
+        <button class="dp-btn dp-right" data-dir="right" aria-label="Kanan">&#9654;</button>
+      </div>
     </section>
 
     <!-- PUZZLE -->
     <section id="screen-play" class="screen hidden">
+      <button id="btn-leave" class="btn small">&larr; Kembali ke ruangan</button>
       <h2 id="play-title"></h2>
 
       <div class="panel">
@@ -114,7 +134,7 @@
       <h2>Flag benar, pintu terbuka!</h2>
       <p id="win-text"></p>
       <div id="win-flag" class="flag"></div>
-      <button id="btn-next" class="btn primary">Lanjut ke lokasi berikutnya</button>
+      <button id="btn-next" class="btn primary">Kembali ke ruangan dan keluar lewat pintu</button>
     </section>
 
     <!-- PENJARA -->
@@ -291,5 +311,6 @@
   </div>
 
   <script src="game.js"></script>
+  <script src="world.js"></script>
 </body>
 </html>

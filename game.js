@@ -187,6 +187,8 @@ const state = {
   expectedNums: [],
   expectedText: '',
   bgId: null,
+  doorOpen: false,
+  puzzleLevel: null,
 };
 
 /* ---------- Tampilan ---------- */
@@ -309,6 +311,9 @@ function openBrief() {
   const lvl = LEVELS[state.levelIdx];
   state.lives = lvl.lives;
   state.hudLives = null;
+  state.doorOpen = false;
+  state.puzzleLevel = null;
+  if (typeof worldReset === 'function') worldReset();
   renderHud();
   $('brief-title').textContent = `Level ${state.levelIdx + 1}: ${lvl.place}`;
   const intro = state.levelIdx === 0
@@ -352,8 +357,18 @@ function generatePuzzle() {
   state.expectedText = numsToText(arr);
 }
 
+/* Dipanggil dunia 2D saat pemain melewati pintu yang sudah terbuka. */
+function leaveLevel() {
+  state.levelIdx++;
+  openBrief();
+}
+
 function openPlay() {
-  generatePuzzle();
+  /* Puzzle dibuat sekali per level, jadi keluar-masuk terminal tidak mengacak ulang soalnya. */
+  if (state.puzzleLevel !== state.levelIdx) {
+    generatePuzzle();
+    state.puzzleLevel = state.levelIdx;
+  }
   renderHud();
   const lvl = LEVELS[state.levelIdx];
   const h = lvl.helpers;
@@ -730,6 +745,7 @@ function checkAnswer() {
 
   if (ok) {
     clearGlitch();
+    state.doorOpen = true;
     const isLast = state.levelIdx === LEVELS.length - 1;
     if (isLast) {
       $('end-text').textContent =
@@ -784,7 +800,8 @@ function newCharacter() {
 
 /* ---------- Event ---------- */
 $('btn-start').addEventListener('click', startGame);
-$('btn-go').addEventListener('click', openPlay);
+$('btn-go').addEventListener('click', () => openWorld());
+$('btn-leave').addEventListener('click', () => openWorld());
 $('btn-answer').addEventListener('click', checkAnswer);
 $('answer').addEventListener('keydown', (e) => { if (e.key === 'Enter') checkAnswer(); });
 $('btn-convert').addEventListener('click', convertPlain);
@@ -798,7 +815,7 @@ $('work').addEventListener('input', clearPreview);
 $('btn-calc').addEventListener('click', runCalc);
 $('calc-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') runCalc(); });
 $('btn-calc-clear').addEventListener('click', calcReset);
-$('btn-next').addEventListener('click', () => { state.levelIdx++; openBrief(); });
+$('btn-next').addEventListener('click', () => openWorld());
 $('btn-newchar').addEventListener('click', newCharacter);
 $('btn-again').addEventListener('click', newCharacter);
 
